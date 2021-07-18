@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>comments.html</title>
+<script>
+	window.onload = function(){
+		loadCommentList();
+	}
+	
+	// 목록 조회...
+	function loadCommentList(){
+		//ajax 호출, servlet 호출
+		let xhtp = new XMLHttpRequest();
+		xhtp.open('get', 'CommentsServ?cmd=selectAll');
+		xhtp.send();
+		xhtp.onreadystatechange = loadCommentResult;		
+	}
+	
+	// 조회결과..
+	function loadCommentResult(){
+		if(this.readyState == 4 && this.status == 200){
+			// string -> xml
+			let xmp = new DOMParser();
+			let xmlDoc = xmp.parseFromString(this.responseText, 'text/xml');
+			let code = xmlDoc.getElementsByTagName('code')[0].innerHTML;
+			let listDiv = document.getElementById('commentList');
+			console.log(xmlDoc);
+			if (code == 'success'){
+				let commentList = eval(xmlDoc.getElementsByTagName('data')[0].innerHTML);
+				console.log(commentList);
+				for (let i=0; i < commentList.length; i++){
+					listDiv.appendChild(makeCommentView(commentList[i]));	// 데이터 한건
+				}
+			}	
+		}
+	}
+	
+	// 한건을 화면에 보여줌.
+	function makeCommentView(comment){
+		console.log(comment);
+		let div = document.createElement('div');
+		div.setAttribute('id', comment.id);
+		div.className = 'comment';
+		div.comment = comment;	// {id : 1, name : 'user', content : 'test'}
+		let str = '<strong>'+ comment.name + '</strong>' + 
+				  comment.content + 
+				  '<input type="button" value ="수정" onclick = "viewUpdateForm('+ comment.id +')" >' +
+				  '<input type="button" value ="삭제" onclick = "confirmDeletion('+ comment.id +')" >' ;
+		div.innerHTML = str; // <div><strong>ddd</strong></div> 태그형식처럼 들어감
+		return div;
+	}
+	
+	// 한건 등록...
+	function addComment(){
+		let name = addForm.name.value;
+		if (name == ""){
+			alert("이름을 입력하세요.");
+			addForm.name.focus();
+			return;
+		}
+		let content = addForm.content.value;
+		if (content == ""){
+			alert("내용을 입력하세요.");
+			addForm.content.focus();
+			return;
+		}
+		let param = "&name=" + name + "&content=" + content ;
+		// ajax 호출..
+		let xhtp = new XMLHttpRequest();
+		xhtp.open('get', 'CommentsServ?cmd=insert' + param);
+		xhtp.send();
+		xhtp.onreadystatechange = addResult;		
+	}
+	
+	// 등록 콜백 함수.
+	function addResult() {
+	    if (this.readyState == 4 && this.status == 200) {
+	        // string -> xml
+	        let xmp = new DOMParser();
+	        let xmlDoc = xmp.parseFromString(this.responseText, 'text/xml');
+	        let code = xmlDoc.getElementsByTagName('code').item(0).innerHTML; // item(0) = [0]
+	        let listDiv = document.getElementById('commentList');
+	        if (code == "success") {
+	            //let comment = eval(xmlDoc.getElementsByTagName('data').item(0).innerHTML);
+	            let comment = JSON.parse(xmlDoc.getElementsByTagName('data').item(0).innerHTML);
+	            listDiv.appendChild(makeCommentView(comment));
+	            addForm.name.value = '';
+	            addForm.content.value = '';
+	            alert("등록되었습니다! [" + comment.id + "]");
+	        } else if (code == "error") {
+	            alert("에러발생했습니다!")
+	        }
+	        console.log(xmlDoc);
+	     }
+	}
+	
+	// 수정화면..
+	function viewUpdateForm(commentId){
+		let commentDiv = document.getElementById(commentId); // <div></div>
+		let updateFormDiv = document.getElementById('commentUpdate');
+		
+		commentDiv.appendChild(updateFormDiv); // 수정화면에 id기준으로 정보를 보여줌.
+		let comment = commentDiv.comment;	// id, name, content 정보 불러옴.
+		updateForm.id.value = comment.id;
+		updateForm.name.value = comment.name;
+		updateForm.content.value = comment.content;
+		updateFormDiv.style.display = 'block';
+	}
+	// ajax 호출 수정
+	function updateComment() {
+		
+		let id = this.selectId;
+		console.log(this);
+		
+        let name = updateForm.name.value;
+        if (name == "") {
+            alert("이름을 입력해 주세요.");
+            updateForm.name.focus();
+            return;
+        }
+
+        let content = updateForm.content.value;
+        if (content == "") {
+            alert("내용을 입력해 주세요.");
+            updateForm.content.focus();
+            return;
+        }
+        let param = "&id="+ id + "&name=" + name + "&content=" + content;
+        // ajax 호출
+        let xhtp = new XMLHttpRequest();
+         xhtp.open('get', 'CommentServ?cmd=update' + param);
+         xhtp.send();
+         xhtp.onreadystatechange = updateResult;
+      }
+	
+	function updateResult() {
+	    if (this.readyState == 4 && this.status == 200) {
+	        // string -> xml
+	        let xmp = new DOMParser();
+	        let xmlDoc = xmp.parseFromString(this.responseText, 'text/xml');
+	        let code = xmlDoc.getElementsByTagName('code').item(0).innerHTML; // item(0) = [0]
+	        //let listDiv = document.getElementById('commentList');
+	        if (code == "success") {
+	            //let comment = eval(xmlDoc.getElementsByTagName('data').item(0).innerHTML);
+	            let comment = JSON.parse(xmlDoc.getElementsByTagName('data').item(0).innerHTML);
+	            //listDiv.getElementById("1");
+	            updateForm.name.value = '';
+	            updateForm.content.value = '';
+	            alert("수정되었습니다! [" + comment.id + "]");
+	        } else if (code == "error") {
+	            alert("에러발생했습니다!")
+	        }
+	        console.log(xmlDoc);
+	     }
+	}
+	
+
+</script>
+</head>
+<body>
+	<div id = 'commentList'></div>
+	<!-- 글 등록 -->
+	<div id= 'commentAdd'>
+		<form action="" name='addForm'>
+			이름: <input type='text' name="name" size = "10"><br>
+			내용: <textarea name='content' cols='20' rows='2'></textarea>
+			<input type='button' value='등록' onclick='addComment()'>
+		</form>
+	</div>
+	
+	<!-- 글 수정 -->
+	<div id='commentUpdate' style='display:none'>
+		<form action='' name='updateForm'>
+			<input type='hidden' name='id' value=''>
+			이름: <input type='text' name="name" size = "10"><br>
+			내용: <textarea name='content' cols='20' rows='2'></textarea>
+			<input type='button' value='변경' onclick='updateComment()'>
+			<input type='button' value='취소' onclick='cancelUpdate()'>
+		</form>
+	</div>
+</body>
+</html>

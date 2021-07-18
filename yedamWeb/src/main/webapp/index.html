@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+
+<body>
+	<h1>반갑습니다.</h1>
+	<form id="frm" action="RegisterServlet" method="get">
+		아이디: <input type="number" name="eid"><br> 성: <input
+			type="text" name="last_name"><br> 이메일: <input
+			type="text" name="email"><br> 입사일자: <input type="date"
+			name="hire_date"><br> 이름: <input type="text"
+			name="first_name"><br><br>
+		<button type="button" onclick="frm_submit()">저장</button>
+		<button type="button" onclick="frm_update()">수정</button>
+		<button type="button" onclick="frm_delete()">삭제</button>
+
+	</form>
+	<script>
+	
+		document.getElemntById('btnDel').addEventListener('click', frm_delete);
+		
+		function frm_delete(){
+			console.log('delete');
+		}
+	
+	
+	
+		// 페이지가 로딩되면 리스트 보여주도록 하기.
+		let xhtp = new XMLHttpRequest();
+		xhtp.open("get", "EmplistServlet");
+		xhtp.send();
+		xhtp.onreadystatechange = function () {
+			if (xhtp.readyState == 4 && xhtp.status == 200) {
+				let data = JSON.parse(xhtp.responseText);
+				console.log(data);
+				showEmpList(data);
+			}
+		}
+
+		let title = ['employeeId', 'firstName', 'lastName', 'email', 'hireDate'];
+		
+		
+		// 리스트 보여주는 부분.
+		function showEmpList(data) {
+			let table = document.createElement('table');
+			table.setAttribute("border", "1");
+			let cap = document.createElement('caption');
+			cap.appendChild(document.createTextNode('사원리스트'));
+			table.appendChild(cap);
+			table.appendChild(showTitle());
+			// 전체 데이터를 가져와서 반복문으로 (필드명 + 필드값)
+			for (let obj of data) { // 데이터..(tr)
+				let tr = document.createElement('tr');
+				tr.setAttribute('id',obj.employeeId);
+				tr.onclick = trClick;
+				for (let field of title) {
+					let td = document.createElement('td');
+					let text = document.createTextNode(obj[field]);
+					td.appendChild(text);
+					tr.appendChild(td);
+				}
+				table.appendChild(tr);
+			}
+			document.body.appendChild(table);
+		}
+
+		function showTitle() {
+			let tr = document.createElement('tr');
+			for (let t of title) {
+				let td = document.createElement('th');
+				let text = document.createTextNode(t);
+				td.appendChild(text);
+				tr.appendChild(td);
+			}
+			return tr;
+		}
+
+		// 저장누르면 전송 끝
+		function frm_submit(e) {
+			if (frm.eid.value == "") {
+				alert("아이디 입력 확인.");
+				frm.eid.focus();
+				return;
+			}
+			if (frm.last_name.value == "") {
+				alert("이름 입력 확인.");
+				frm.last_name.focus();
+				return;
+			}
+			if (frm.hire_date.value == "") {
+				alert("입사일 입력 확인.");
+				frm.hire_date.focus();
+				return;
+			}
+			if (frm.email.value == "") {
+				alert("이메일 입력 확인.");
+				frm.email.focus();
+				return;
+			}
+			// last_name, email, hire_date 체크하기.
+
+
+			//frm.submit(); // 전송 : 제대로 들어갔어
+
+			let xhtp = new XMLHttpRequest();
+			const id = document.querySelectorAll('input[name="eid"]')[0].value;
+			const fn = document.querySelectorAll('input[name="first_name"]')[0].value;
+			const ln = document.querySelectorAll('input[name="last_name"]')[0].value;
+			const em = document.querySelectorAll('input[name="email"]')[0].value;
+			const hd = document.querySelectorAll('input[name="hire_date"]')[0].value;
+			const param = 'eid=' + id + '&last_name=' + ln + '&email=' + em + '&hire_date=' + hd + '&first_name=' + fn;
+
+			xhtp.open('get', 'RegisterServlet?' + param);
+			xhtp.send();
+			xhtp.onreadystatechange = function () {
+				if (xhtp.readyState == 4 && xhtp.status == 200) {
+					alert("ok");
+					// { id:? , first_name : ?, last_name : ? , email : ?, hire_date : ? }
+					console.log(xhtp.responseText);
+					const data = JSON.parse(xhtp.responseText);
+					//data.id;
+					//data.first_name;
+					//data.last_name;
+					//data.email;
+					//data.hire_date;
+
+					let tr = document.createElement('tr');
+					for (let field in data) {
+						let td = document.createElement('td');
+						let text = document.createTextNode(data[field]);
+						td.appendChild(text);
+						tr.appendChild(td);
+					}
+					document.getElementsByTagName('table')[0].appendChild(tr);
+				}
+			}
+		}
+		
+		function trClick() { // tr클릭 색변경.
+			
+		    const eid = this.getAttribute('id');
+			const xhtp = new XMLHttpRequest();
+			xhtp.open('get', 'EmployeeServlet?eid=' + eid);
+			xhtp.send();
+			xhtp.onreadystatechange = function(){
+				if(xhtp.readyState == 4 && xhtp.status == 200){
+					const data = JSON.parse(xhtp.responseText);
+					document.querySelector('input[name="eid"]').value = data.employeeId;
+					document.querySelector('input[name="last_name"]').value = data.lastName;
+					document.querySelector('input[name="email"]').value = data.email;
+					document.querySelector('input[name="hire_date"]').value = data.hireDate;
+					document.querySelector('input[name="first_name"]').value = data.firstName;
+					
+				}
+			}			
+		}// trClick 끝
+		
+		// 수정버튼기능.
+		function frm_update(){
+		
+			let xhtp = new XMLHttpRequest();
+			const id = document.querySelectorAll('input[name="eid"]')[0].value;
+			const fn = document.querySelectorAll('input[name="first_name"]')[0].value;
+			const ln = document.querySelectorAll('input[name="last_name"]')[0].value;
+			const em = document.querySelectorAll('input[name="email"]')[0].value;
+			const hd = document.querySelectorAll('input[name="hire_date"]')[0].value;
+			const param = 'eid=' + id + '&last_name=' + ln + '&email=' + em + '&hire_date=' + hd + '&first_name=' + fn;
+
+			xhtp.open('get', 'ModifyServlet?' + param);
+			xhtp.send();
+			xhtp.onreadystatechange = function () {
+				if (xhtp.readyState == 4 && xhtp.status == 200) {
+					alert("ok");
+
+					console.log(xhtp.responseText);
+					const data = JSON.parse(xhtp.responseText);
+					// data.employeeId 필드를 사용해서 테이블에서 tr의 id값이 같은 요소
+					const findTr = document.getElementById(data.employeeId); // tr찾으라고
+					findTr.childNodes[1].childNodes[0].nodeValue = data.firstName;
+					findTr.childNodes[2].childNodes[0].nodeValue = data.lastName;
+					findTr.childNodes[3].childNodes[0].nodeValue = data.email;
+					findTr.childNodes[4].childNodes[0].nodeValue = data.hireDate;
+				}
+			}			
+		} // end - frm_update()
+		
+		
+		function frm_delete(){
+			
+			let xhtp = new XMLHttpRequest();
+			const id = document.querySelectorAll('input[name="eid"]')[0].value;
+
+			xhtp.open('get', 'DeleteServlet?eid=' + id);
+			xhtp.send();
+			xhtp.onreadystatechange = function () {
+				if (xhtp.readyState == 4 && xhtp.status == 200) {
+					alert("ok");
+				document.getElementById(id).remove();
+				}
+			}
+		}
+	</script>
+</body>
+</html>
