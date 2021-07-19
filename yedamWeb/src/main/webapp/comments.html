@@ -4,25 +4,27 @@
 <meta charset="UTF-8">
 <title>comments.html</title>
 <script>
-	window.onload = loadCommentList();
+	// commentList의 요소를 찾음
+
+	window.onload = function(){		
+		loadCommentList();
+	}
 	
 	// 목록 조회...
 	function loadCommentList(){
-		// ajax 호출, servlet 호출
-		// XMLHttpRequest object 생성
+		//ajax 호출, servlet 호출
 		let xhtp = new XMLHttpRequest();
-		
 		xhtp.open('get', 'CommentsServ?cmd=selectAll');
 		xhtp.send();
-		xhtp.onreadystatechange = loadCommentResult;		
+		xhtp.onreadystatechange = loadCommentResult;	// 새로고침 안하고 화면에 출력	
 	}
 	
 	// 조회결과..
 	function loadCommentResult(){
-		if(this.readyState == 4 && this.status == 200){
-			// string -> xml
-			let xmp = new DOMParser();
-			let xmlDoc = xmp.parseFromString(this.responseText, 'text/xml');
+		if(this.readyState == 4 && this.status == 200){ //4 : 요청 데이터의 처리가 완료됐을때 , 200: 서버의 문서가 존재할때
+			// string -> xml (그냥 가지고오면 텍스트형식임)
+			let xmp = new DOMParser(); // dom객체 생성 (parseFromString  메소드를 사용하길 위해)
+			let xmlDoc = xmp.parseFromString(this.responseText, 'text/xml'); // xml로 변환
 			let code = xmlDoc.getElementsByTagName('code')[0].innerHTML;
 			let listDiv = document.getElementById('commentList');
 			console.log(xmlDoc);
@@ -32,13 +34,14 @@
 				for (let i=0; i < commentList.length; i++){
 					listDiv.appendChild(makeCommentView(commentList[i]));	// 데이터 한건
 				}
-			}	
+			}
+				
 		}
 	}
 	
 	// 한건을 화면에 보여줌.
 	function makeCommentView(comment){
-		console.log(comment);
+		// console.log(comment);
 		let div = document.createElement('div');
 		div.setAttribute('id', comment.id);
 		div.className = 'comment';
@@ -76,7 +79,7 @@
 	// 등록 콜백 함수.
 	function addResult() {
 	    if (this.readyState == 4 && this.status == 200) {
-	        // string -> xml
+	        // string -> xml 
 	        let xmp = new DOMParser();
 	        let xmlDoc = xmp.parseFromString(this.responseText, 'text/xml');
 	        let code = xmlDoc.getElementsByTagName('code').item(0).innerHTML; // item(0) = [0]
@@ -100,66 +103,89 @@
 		let commentDiv = document.getElementById(commentId); // <div></div>
 		let updateFormDiv = document.getElementById('commentUpdate');
 		
-		commentDiv.appendChild(updateFormDiv); // 수정화면에 id기준으로 정보를 보여줌.
-		
+		commentDiv.after(updateFormDiv); // 수정화면에 id기준으로 정보를 보여줌.
 		let comment = commentDiv.comment;	// id, name, content 정보 불러옴.
 		updateForm.id.value = comment.id;
 		updateForm.name.value = comment.name;
 		updateForm.content.value = comment.content;
 		updateFormDiv.style.display = 'block';
 		
-		selectId = commentId;
-		
-		return comment.id;
 	}
+	
 	// ajax 호출 수정
 	function updateComment() {
 		
-		let id = this.selectId;
-		console.log(this);
+		const id = document.updateForm.id.value;
+		const name = document.updateForm.name.value;
+		const content = document.updateForm.content.value;
 		
-        let name = updateForm.name.value;
-        if (name == "") {
-            alert("이름을 입력해 주세요.");
-            updateForm.name.focus();
-            return;
-        }
-
-        let content = updateForm.content.value;
-        if (content == "") {
-            alert("내용을 입력해 주세요.");
-            updateForm.content.focus();
-            return;
-        }
-        // ajax 호출
-        let xhtp = new XMLHttpRequest();
-
-        let param = "&id="+ id + "&name=" + name + "&content=" + content;
-         xhtp.open('get', 'CommentServ?cmd=update' + param);
-         xhtp.send();
-         xhtp.onreadystatechange = updateResult;
+		// serv 주소창에서 넣었던 형식 그대로
+        const param = "?cmd=update&id="+ id + "&name=" + name + "&content=" + content;
+	    // ajax 호출
+        const xhtp = new XMLHttpRequest();
+        xhtp.open('get', 'CommentsServ' + param);
+        xhtp.send();
+        xhtp.onreadystatechange = updateResult;
       }
 	
-	function updateResult() {
+	  // update 콜백함수(정상적으로 실행됐을때 실행시킬..) , ajax 호출 콜백함수.
+	  function updateResult() {
 	    if (this.readyState == 4 && this.status == 200) {
 	        // string -> xml
-	        let xmp = new DOMParser();
-	        let xmlDoc = xmp.parseFromString(this.responseText, 'text/xml');
-	        let code = xmlDoc.getElementsByTagName('code')[0].innerHTML; // item(0) = [0]
-	        //let listDiv = document.getElementById('commentList');
-	        if (code == "success") {
-	            //let comment = eval(xmlDoc.getElementsByTagName('data').item(0).innerHTML);
-	            let comment = JSON.parse(xmlDoc.getElementsByTagName('data').item(0).innerHTML);
-	            //listDiv.getElementById("1");
-	            updateForm.name.value = '';
-	            updateForm.content.value = '';
-	            alert("수정되었습니다! [" + comment.id + "]");
-	        } else if (code == "error") {
-	            alert("에러발생했습니다!")
-	        }
+			console.log(this.responseXML);
+	        const xmlDoc = this.responseXML;
+			const code = xmlDoc.getElementsByTagName('code')[0].firstChild.nodeValue;
+			if (code == 'success'){
+				// 정상적으로 실행되면 comment값을 받아옴
+				const comment = JSON.parse(xmlDoc.getElementsByTagName('data')[0].firstChild.nodeValue);
+				// 수정을 눌렀을때의 위치값을 바뀐값으로 변경해주는거
+				const listDiv = document.getElementById('commentList');
+				const commentDiv = makeCommentView(comment); // 보여주는 function
+				const oldCommentDiv = document.getElementById(comment.id); 
+				listDiv.replaceChild(commentDiv, oldCommentDiv); // 현재 위치의 id값의 하위를 변경
+				alert("수정완료!");
+				document.getElementById('commentUpdate').style.display = 'none';
+							
+			} else {
+				alert("에러발생!");
+			}
 	     }
+	 }
+
+	// 수정 취소 버튼
+	function cancelUpdate(){
+		document.getElementById('commentUpdate').style.display = 'none';
 	}
 	
+	// 수정 삭제 처리
+	function confirmDeletion(id){
+		const xhtp = new XMLHttpRequest();
+		xhtp.open('get', 'CommentsServ?cmd=delete&id=' + id);
+        xhtp.send(); // 실제 요청
+		xhtp.onreadystatechange = deleteResult;
+	}
+	
+	// 삭제 콜백함수.
+	function deleteResult () {
+		if (this.readyState == 4 && this.status == 200) {
+	        // string -> xml
+			console.log(this.responseXML);
+	        const xmlDoc = this.responseXML;
+			const code = xmlDoc.getElementsByTagName('code')[0].firstChild.nodeValue;
+			if (code == 'success'){
+				// 정상적으로 실행되면 comment값을 받아옴
+				const comment = JSON.parse(xmlDoc.getElementsByTagName('data')[0].firstChild.nodeValue);
+				// 수정을 눌렀을때의 위치값을 바뀐값으로 변경해주는거
+				const listDiv = document.getElementById('commentList');
+				const oldCommentDiv = document.getElementById(comment.id); // id값 요소를 가져옴
+				listDiv.removeChild(oldCommentDiv); // 현재 위치의 id값의 자식을 삭제함
+				alert("삭제완료!");
+							
+			} else {
+				alert("에러발생!");
+			}
+	     }		
+	 }
 
 </script>
 </head>

@@ -18,43 +18,58 @@ public class CommentsDAO extends DAO {
 		}
 		return new CommentsDAO();
 	}
-	// 수정..
-	public HashMap<String, Object> update(Comments comment){
-		connect();
-		HashMap<String, Object> map = new HashMap<String, Object>();
-		try {
-			conn.setAutoCommit(false); // 자동 커밋 방지
-
-			psmt = conn.prepareStatement("update comments set name=?, content=? where id = ?");
-			psmt.setString(1, comment.getName());
-			psmt.setString(2, comment.getContent());
-			psmt.setString(3, comment.getId());
-			psmt.executeUpdate();
-			conn.commit(); // 실제.. 커밋.
-
-			map.put("id", comment.getId());
-			map.put("name", comment.getName());
-			map.put("content", comment.getContent());
-			map.put("code", "success");
-
-		} catch (SQLException e) {
-			e.printStackTrace();
+	// 삭제
+		public HashMap<String, Object> delete(Comments comment){
+			connect();
+			String sql = "delete from comments where id = ?";
+			HashMap<String, Object> map = null;
 			try {
-				conn.rollback(); // 오류나면 데이터를 저장하지 않도록 ( 예외 발생 시 롤백..)
-
-			} catch (SQLException e1) {
-				e1.printStackTrace();
+				psmt = conn.prepareStatement(sql); // commit을 따로 안주면 오토커밋임
+				psmt.setString(1,  comment.getId());
+				int r = psmt.executeUpdate();
+				System.out.println(r + "건 삭제되었습니다.");
+				
+				// 넘기는 값도 코드와 id만
+				map = new HashMap<String, Object>();
+				map.put("id", comment.getId());
+				map.put("code", "success");
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+				map = new HashMap<String, Object>();
+				map.put("code", "error");
 			}
-			map.put("code", "error");
+			return map;
 		}
-// 		이거 넣으면 500번 에러, null포인트가 뜸		
-//		finally {
-//			disconnect();
-//		}
 		
-		return map;
-	}
-	
+		
+		
+		// 수정
+		public HashMap<String, Object> update(Comments comment){
+			connect();
+			String sql = "update comments set name=?, content=? where id = ?";
+			HashMap<String, Object> map = null;
+			try {
+				psmt = conn.prepareStatement(sql);
+				psmt.setString(1,  comment.getName());
+				psmt.setString(2,  comment.getContent());
+				psmt.setString(3,  comment.getId());
+				int r = psmt.executeUpdate();
+				System.out.println(r + "건 수정되었습니다.");
+				
+				map = new HashMap<String, Object>();
+				map.put("id", comment.getId());
+				map.put("name", comment.getName());
+				map.put("content", comment.getContent());
+				map.put("code", "success");
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+				map = new HashMap<String, Object>();
+				map.put("code", "error");
+			}
+			return map;
+		}
 
 	// 입력
 	public HashMap<String, Object> insert(Comments comment) {

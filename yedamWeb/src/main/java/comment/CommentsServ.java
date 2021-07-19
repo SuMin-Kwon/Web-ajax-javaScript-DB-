@@ -56,13 +56,22 @@ public class CommentsServ extends HttpServlet {
 			comment.setName(request.getParameter("name"));
 			HashMap<String, Object> map = CommentsDAO.getInstance().insert(comment);
 			out.println(toXML(map));
-		} else if (cmd.equals("update")) {
+		}  else if (cmd.equals("update")) {
 			// 수정
+			response.setContentType("text/xml;charset=utf-8");
 			Comments comment = new Comments();
 			comment.setId(request.getParameter("id"));
-			comment.setContent(request.getParameter("content"));
 			comment.setName(request.getParameter("name"));
+			comment.setContent(request.getParameter("content"));
 			HashMap<String, Object> map = CommentsDAO.getInstance().update(comment);
+			out.println(toXML(map)); // ajax로 넘어올꺼라서 XML 파일로 받음
+		} else if (cmd.equals("delete")) {
+			// 삭제
+			response.setContentType("text/xml;charset=utf-8");
+			
+			Comments comment = new Comments();
+			comment.setId(request.getParameter("id"));
+			HashMap<String, Object> map = CommentsDAO.getInstance().delete(comment);
 			out.println(toXML(map));
 		}
 	}
