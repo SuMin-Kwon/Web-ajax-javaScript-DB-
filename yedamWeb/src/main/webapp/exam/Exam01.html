@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="members.json"></script>
+    <title>exam01</title>
+</head>
+
+<body>
+    <div id="show">
+
+    </div>
+    <script>
+        function loadJSON(callback) {
+            var xobj = new XMLHttpRequest();
+            xobj.overrideMimeType("application/json");
+            xobj.open('GET', 'members.json', true);
+            xobj.onreadystatechange = function () {
+                if (xobj.readyState == 4 && xobj.status == "200") {
+                    callback(JSON.parse(xobj.responseText));
+                }
+            };
+            xobj.send(null);
+        }
+
+        loadJSON(function (json) {
+            console.log(json);
+
+            let tableTag = document.createElement('table');
+            tableTag.setAttribute('border', '1');
+
+            let caption = document.createElement('caption');
+            caption.appendChild(document.createTextNode('회원리스트'));
+            tableTag.appendChild(caption);
+
+            createHeader2(); // 타이틀보여주기.
+
+            for (let row of json) { // 데이터..(tr)
+                let trTag = document.createElement('tr');
+                trTag.setAttribute('id', row.id); // tr을 id값으로 찾아올 용도. 
+
+                for (let field in row) { // 필드..(td)
+                    let tdTag = document.createElement('td');
+                    let text = document.createTextNode(row[field]);
+                    tdTag.appendChild(text);
+                    trTag.appendChild(tdTag);
+                }
+                
+                tableTag.appendChild(trTag);
+            }
+            document.getElementById('show').appendChild(tableTag);
+
+            function createHeader2() {
+                let titles = ['id', 'first_name', 'last_name', 'email', 'gener', 'address'];
+                let tr = document.createElement('tr');
+                for (let field of titles) { // 배열일 경우에는 for..of
+                    let td = document.createElement('th');
+                    let text = document.createTextNode(field);
+                    td.appendChild(text);
+                    tr.appendChild(td);
+                }
+                tableTag.appendChild(tr);
+            }
+
+        });
+    </script>
+</body>
+
+</html>

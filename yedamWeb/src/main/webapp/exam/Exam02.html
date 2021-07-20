@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<div id="show"></div>
+	<script>
+		let xhtp = new XMLHttpRequest();
+		xhtp.open('get', 'employees.xml');
+		xhtp.send();
+		xhtp.onreadystatechange = function () {
+			if (xhtp.readyState == 4 && xhtp.status == 200) {
+				let xmp = new DOMParser();
+				let xmlDoc = xmp.parseFromString(this.responseText, 'text/xml');
+				console.log(xmlDoc);
+				let contents = "";
+				let content = xmlDoc.getElementsByTagName("record");
+				console.log(content);
+
+				const ul = document.createElement('ul');
+				for (i = 0; i < content.length; i++) {
+					const li = document.createElement('li');
+					const t1 = content[i].childNodes[0].innerHTML;
+					const t2 = content[i].childNodes[1].innerHTML;
+					const t3 = content[i].childNodes[5].innerHTML;
+					const text = document.createTextNode(t1 + ", " + t2 + ", " + t3);
+					li.appendChild(text);
+
+					ul.appendChild(li);
+				}
+				document.querySelector("#show").appendChild(ul);
+			}
+		}
+	</script>
+</body>
+</html>
