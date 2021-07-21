@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <script src="js/bootstrap.min.js"></script>
+    <title>input : example</title>
+</head>
+<style>
+    .container-fluid {
+        background-color: rgb(233, 217, 255);
+    }
+    .grayFont {
+        color : rgb(119, 69, 134);
+    }
+
+</style>
+
+<body>
+    <div class="container-fluid">
+        <br><br>
+        <div class="row m-2">
+            <div class="col-12 mb-2">
+                <h3>Billing address</h3>
+            </div>
+        </div>
+        <!-- 이름 -->
+        <div class="row m-2">
+            <div class="col-6 mb-2 form-group">
+                <label for="usr">FirstName:</label>
+                <input type="text" class="form-control" id="firstName">
+            </div>
+            <div class="col-6 mb-2 form-group">
+                <label for="usr">lastName:</label>
+                <input type="text" class="form-control" id="lastName">
+            </div>
+        </div>
+        <!-- 유저이름 -->
+        <div class="row m-2">
+            <div class="col-12 mb-2 form-group">
+                <form>UserName:
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">@</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="Username">
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- 이메일 -->
+        <div class="row m-2">
+            <div class="col-12 mb-2 form-group">
+                <label for="usr">Email:</label>
+                <input type="text" class="form-control" id="firstName" placeholder="Enter email">
+            </div>
+        </div>
+        <!-- 주소 -->
+        <div class="row m-2">
+            <div class="col-12 mb-2 form-group">
+                <label for="usr">Address:</label>
+                <input type="text" class="form-control" id="firstName" placeholder="1234 Main St">
+            </div>
+        </div>
+        <!-- 주소2 -->
+        <div class="row m-2">
+            <div class="col-12 mb-2 form-group">
+                <label for="usr">Address2:</label>
+                <input type="text" class="form-control" id="firstName" placeholder="Apartment or suite">
+            </div>
+        </div>
+        <!-- 국가, 지역 등 -->
+        <div class="row m-2">
+            <div class="col-5 mb-2 form-group">
+                <label for="sel1">Country:</label>
+                <select class="form-select" id="sel1">
+                    <option>choose...</option>
+                    <option>US</option>
+                </select>
+            </div>
+            <div class="col-4 mb-2 form-group">
+                <label for="sel1">State:</label>
+                <select class="form-select" id="sel1">
+                    <option>choose...</option>
+                    <option>California</option>
+                </select>
+            </div>
+            <div class="col-3 mb-2 form-group">
+                <label for="usr">Zip:</label>
+                <input type="text" class="form-control" id="firstName">
+            </div>
+        </div>
+        <!-- 체크박스 -->
+        <br>
+        <hr>
+        <div class="row m-2">
+            <div class="col-12 mb-2 form-check">
+                <label class="form-check-label">
+                    <input type="checkbox" class="form-check-input" name ="ch" value="">Shipping address is the same as my billing
+                    address
+                </label>
+            </div>
+            <div class="col-12 mb-2 form-check">
+                <input type="checkbox" class="form-check-input" name ="ch" value="">Save this information for next time
+                <label class="form-check-label">
+                </label>
+            </div>
+        </div>
+        <hr><br>
+        <!-- 지불  -->
+        <div class="row m-2">
+            <div class="col-12 mb-2">
+                <h3>Payment</h3>
+            </div>
+        </div>
+        <div class="row m-2">
+            <div class="col-12 mb-2 form-check">
+                <label class="form-check-label">
+                    <input type="radio" class="form-check-input" name="optradio" checked>Credit card
+                </label>
+            </div>
+            <div class="col-12 mb-2 form-check">
+                <label class="form-check-label">
+                    <input type="radio" class="form-check-input" name="optradio">Debit card
+                </label>
+            </div>
+            <div class="col-12 mb-2 form-check">
+                <label class="form-check-label">
+                    <input type="radio" class="form-check-input" name="optradio">PayPal
+                </label>
+            </div>
+        </div>
+        <!-- 카드정보  -->
+        <div class="row m-2">
+            <div class="col-6 mb-2 form-group">
+                <label for="usr">Name on card:</label>
+                <input type="text" class="form-control" id="firstName">
+                <p class="grayFont"><small>Full name as displayed on card</small></p>
+            </div>
+            <div class="col-6 mb-2 form-group">
+                <label for="usr">Credit card number:</label>
+                <input type="text" class="form-control" id="firstName">
+            </div>
+        </div>
+        <div class="row m-2">
+            <div class="col-3 mb-2 form-group">
+                <label for="usr">Expiration</label>
+                <input type="text" class="form-control" id="firstName">
+            </div>
+            <div class="col-3 mb-2 form-group">
+                <label for="usr">CVV</label>
+                <input type="text" class="form-control" id="firstName">
+            </div>
+        </div>
+        <hr>
+        <button class="w-100 btn btn-primary btn-lg" type="submit">Continue to checkout</button>
+        <br><br><br><br><br><br>
+        <div class="row m-2">
+            <div class="col-12 text-center grayFont">
+                <small>&copy; 2017-2021 Company Name</small>
+            </div>
+        </div>
+        <div class="row m-2">
+            <div class="col-12 text-center">
+                <button type="button" class="btn btn-link">Privacy</button>
+                <button type="button" class="btn btn-link">Terms</button>
+                <button type="button" class="btn btn-link">Support</button>
+        </div>
+    </div>
+</body>
+
+</html>
